@@ -1,6 +1,7 @@
 import Proficiency from "../../../documents/actor/proficiency.mjs";
 import { simplifyBonus } from "../../../utils.mjs";
 import ActorDataModel from "../../abstract/actor-data-model.mjs";
+import AdvantageModeField from "../../fields/advantage-mode-field.mjs";
 import FormulaField from "../../fields/formula-field.mjs";
 import MappingField from "../../fields/mapping-field.mjs";
 import CurrencyTemplate from "../../shared/currency.mjs";
@@ -159,20 +160,17 @@ export default class CommonTemplate extends ActorDataModel.mixin(CurrencyTemplat
 
       if ( !Number.isFinite(abl.max) ) abl.max = CONFIG.DND5E.maxAbilityScore;
 
+      // Adjust rolling mode
+      if ( this.parent.hasConditionEffect("abilityCheckDisadvantage") ) {
+        AdvantageModeField.setMode(this, `abilities.${id}.check.roll.mode`, -1);
+      }
+      if ( this.parent.hasConditionEffect("abilitySaveDisadvantage")
+        || ((id === "dex") && this.parent.hasConditionEffect("dexteritySaveDisadvantage")) ) {
+        AdvantageModeField.setMode(this, `abilities.${id}.save.roll.mode`, -1);
+      }
+
       // If we merged saves when transforming, take the highest bonus here.
       if ( originalSaves && abl.proficient ) abl.save.value = Math.max(abl.save, originalSaves[id].save.value);
-
-      // Deprecations.
-      abl.save.toString = function() {
-        foundry.utils.logCompatibilityWarning("The 'abilities.<ability>.save' property is now stored in "
-          + "'abilities.<ability>.save.value'.", { since: "4.3", until: "4.5" });
-        return String(abl.save.value);
-      };
-      abl.save.toJSON = function() {
-        foundry.utils.logCompatibilityWarning("The 'abilities.<ability>.save' property is now stored in "
-          + "'abilities.<ability>.save.value'.", { since: "4.3", until: "4.5" });
-        return `!${abl.save.value}!`;
-      };
     }
   }
 
