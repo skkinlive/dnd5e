@@ -482,6 +482,12 @@
       "name": "English",
       "path": "lang/en.json",
       "flags": {}
+    },
+    {
+      "lang": "ko",
+      "name": "Korean",
+      "path": "lang/ko.json",
+      "flags": {}
     }
   ],
   "media": [
